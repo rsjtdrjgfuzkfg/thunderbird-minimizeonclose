@@ -18,10 +18,11 @@ SRCFILES := $(shell find src -type f \
 
 build/version.txt: .git/index $(SRCFILES) LICENSE
 	mkdir -p "$(@D)"
-	git describe --match='v[0-9]*' --dirty=+ | sed -e 's/^v//g' > "$@"
+	git describe --match='v[0-9]*' --dirty=+ | sed -e 's/^v//' -e 's/+$$//' -e 's/-[0-9]*-.*//' > "$@"
 
 build/manifest.json: src/manifest.json build/version.txt
-	sed -e "s/__BUILD_version__/$(shell cat build/version.txt)/g" "$<" > "$@"
+	sed -e "s/__BUILD_version__/$(shell cat build/version.txt)/g" \
+	    -e "s/__BUILD_max_version__/156.*/g" "$<" > "$@"
 
 dist/minimizeonclose.xpi: $(SRCFILES) build/manifest.json LICENSE
 	mkdir -p "$(@D)"
